@@ -1,0 +1,270 @@
+-- // ROBLOX EXECUTOR SCRIPT — AUTO FARM + INSTANT MENU + SAFE LOADER
+-- // OPENS AUTOMATICALLY — NO BIND — DRAGGABLE GUI — MOBILE FRIENDLY
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local localPlayer = Players.LocalPlayer
+local isDragging = false
+local dragStart = nil
+local startPos = nil
+
+-- Function to create GUI
+local function createModernGUI()
+    -- ScreenGui
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AdvancedFarmMenu"
+    screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.Parent = game:GetService("CoreGui")
+
+    -- Main Frame
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(0, 320, 0, 300)
+    mainFrame.Position = UDim2.new(0.5, -160, 0.2, 0)
+    mainFrame.BackgroundTransparency = 0.2
+    mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Visible = true
+    mainFrame.ClipsDescendants = true
+    mainFrame.Parent = screenGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = mainFrame
+
+    -- Drag bar
+    local dragBar = Instance.new("Frame")
+    dragBar.Size = UDim2.new(1, 0, 0, 30)
+    dragBar.BackgroundTransparency = 0.5
+    dragBar.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    dragBar.Parent = mainFrame
+
+    local dragCorner = Instance.new("UICorner")
+    dragCorner.CornerRadius = UDim.new(0, 8)
+    dragCorner.Parent = dragBar
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -60, 1, 0)
+    title.Position = UDim2.new(0, 30, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "💰 Advanced Farm Menu"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 16
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = dragBar
+
+    -- Close button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 24, 0, 24)
+    closeButton.Position = UDim2.new(1, -32, 0, 3)
+    closeButton.Text = "✕"
+    closeButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+    closeButton.Font = Enum.Font.SourceSansBold
+    closeButton.TextSize = 20
+    closeButton.BackgroundTransparency = 1
+    closeButton.Parent = dragBar
+
+    -- Farm button
+    local farmButton = Instance.new("TextButton")
+    farmButton.Size = UDim2.new(0.92, 0, 0, 45)
+    farmButton.Position = UDim2.new(0.04, 0, 0, 45)
+    farmButton.Text = "▶️ START MONEY FARM"
+    farmButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    farmButton.Font = Enum.Font.GothamSemibold
+    farmButton.TextSize = 16
+    farmButton.BackgroundTransparency = 0.3
+    farmButton.BackgroundColor3 = Color3.fromRGB(60, 120, 200)
+    farmButton.Parent = mainFrame
+
+    local farmCorner = Instance.new("UICorner")
+    farmCorner.CornerRadius = UDim.new(0, 8)
+    farmCorner.Parent = farmButton
+
+    -- Case button
+    local caseButton = Instance.new("TextButton")
+    caseButton.Size = UDim2.new(0.92, 0, 0, 45)
+    caseButton.Position = UDim2.new(0.04, 0, 0, 105)
+    caseButton.Text = "⚡ INSTANT OPEN CASE"
+    caseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    caseButton.Font = Enum.Font.GothamSemibold
+    caseButton.TextSize = 16
+    caseButton.BackgroundTransparency = 0.3
+    caseButton.BackgroundColor3 = Color3.fromRGB(220, 80, 80)
+    caseButton.Parent = mainFrame
+
+    local caseCorner = Instance.new("UICorner")
+    caseCorner.CornerRadius = UDim.new(0, 8)
+    caseCorner.Parent = caseButton
+
+    -- AutoClicker toggle button
+    local loaderButton = Instance.new("TextButton")
+    loaderButton.Size = UDim2.new(0.92, 0, 0, 40)
+    loaderButton.Position = UDim2.new(0.04, 0, 0, 165)
+    loaderButton.Text = "▶️ Toggle AutoClicker"
+    loaderButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    loaderButton.Font = Enum.Font.GothamSemibold
+    loaderButton.TextSize = 15
+    loaderButton.BackgroundTransparency = 0.3
+    loaderButton.BackgroundColor3 = Color3.fromRGB(80, 140, 80)
+    loaderButton.Parent = mainFrame
+
+    local loaderCorner = Instance.new("UICorner")
+    loaderCorner.CornerRadius = UDim.new(0, 8)
+    loaderCorner.Parent = loaderButton
+
+    local autoClicking = false
+    local targetPartName = "CirclePart" -- replace with your actual part name
+
+    loaderButton.MouseButton1Click:Connect(function()
+        autoClicking = not autoClicking
+        loaderButton.Text = autoClicking and "⏹ Stop AutoClicker" or "▶️ Toggle AutoClicker"
+
+        if autoClicking then
+            statusLabel.Text = "Status: AutoClicker running..."
+            spawn(function()
+                while autoClicking do
+                    local hrp = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    local targetPart = workspace:FindFirstChild(targetPartName)
+                    if hrp and targetPart then
+                        local touchInterest = targetPart:FindFirstChild("TouchInterest")
+                        if touchInterest then
+                            pcall(function()
+                                firetouchinterest(hrp, targetPart, 0)
+                                firetouchinterest(hrp, targetPart, 1)
+                            end)
+                        else
+                            local orig = hrp.CFrame
+                            pcall(function() hrp.CFrame = targetPart.CFrame + Vector3.new(0,3,0) end)
+                            task.wait(0.05)
+                            pcall(function() hrp.CFrame = orig end)
+                        end
+                    end
+                    task.wait(0.5)
+                end
+                statusLabel.Text = isFarming and "Status: Farming active... 💰" or "Status: Waiting..."
+            end)
+        else
+            statusLabel.Text = isFarming and "Status: Farming active... 💰" or "Status: Waiting..."
+        end
+    end)
+
+    -- Kill button
+    local killButton = Instance.new("TextButton")
+    killButton.Size = UDim2.new(0.92, 0, 0, 38)
+    killButton.Position = UDim2.new(0.04, 0, 0, 215)
+    killButton.Text = "🗑️ CLOSE MENU COMPLETELY"
+    killButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    killButton.Font = Enum.Font.GothamSemibold
+    killButton.TextSize = 15
+    killButton.BackgroundTransparency = 0.3
+    killButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    killButton.Parent = mainFrame
+
+    local killCorner = Instance.new("UICorner")
+    killCorner.CornerRadius = UDim.new(0, 8)
+    killCorner.Parent = killButton
+
+    -- Status label
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.Size = UDim2.new(0.92, 0, 0, 20)
+    statusLabel.Position = UDim2.new(0.04, 0, 0, 245)
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Text = "Status: Waiting..."
+    statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    statusLabel.Font = Enum.Font.Gotham
+    statusLabel.TextSize = 14
+    statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+    statusLabel.Parent = mainFrame
+
+    -- Dragging system
+    dragBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDragging = true
+            dragStart = input.Position
+            startPos = mainFrame.Position
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            mainFrame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDragging = false
+        end
+    end)
+
+    -- Money Farm logic
+    local isFarming = false
+    local lastTouchTime = 0
+
+    local function toggleFarm()
+        isFarming = not isFarming
+        if isFarming then
+            farmButton.Text = "⏹ STOP MONEY FARM"
+            farmButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+            statusLabel.Text = "Status: Farming started..."
+
+            spawn(function()
+                local heartbeatConn
+                heartbeatConn = RunService.Heartbeat:Connect(function()
+                    if not isFarming then
+                        heartbeatConn:Disconnect()
+                        statusLabel.Text = "Status: Stopped."
+                        return
+                    end
+
+                    local ok, cashPart = pcall(function()
+                        return workspace:FindFirstChild("Obbies")
+                            and workspace.Obbies:FindFirstChild("9")
+                            and workspace.Obbies["9"]:FindFirstChild("Folder")
+                            and workspace.Obbies["9"].Folder:FindFirstChild("Cash")
+                            and workspace.Obbies["9"].Folder.Cash:FindFirstChild("Collect")
+                    end)
+                    cashPart = (ok and cashPart and cashPart:IsA("BasePart")) and cashPart or nil
+
+                    local char = localPlayer.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+                    if not (cashPart and hrp) then
+                        statusLabel.Text = "⏳ Waiting for obby to reload..."
+                        return
+                    end
+
+                    if tick() - lastTouchTime < 1 then return end
+                    lastTouchTime = tick()
+
+                    local touchInterest = cashPart:FindFirstChild("TouchInterest")
+                    if touchInterest then
+                        pcall(function()
+                            firetouchinterest(hrp, cashPart, 0)
+                            firetouchinterest(hrp, cashPart, 1)
+                        end)
+                    else
+                        local orig = hrp.CFrame
+                        pcall(function()
+                            hrp.CFrame = cashPart.CFrame * CFrame.new(0, 3, 0)
+                        end)
+                        task.wait(0.05)
+                        pcall(function() hrp.CFrame = orig end)
+                    end
+
+                    statusLabel.Text = "Status: 💰 Collected!"
+                end)
+            end)
+        else
+            farmButton.Text = "▶️ START MONEY FARM"
+            farmButton.BackgroundColor3 = Color3.fromRGB(60, 120, 200)
+            statusLabel.Text = "Status: Stopped."
+        end
+    end
